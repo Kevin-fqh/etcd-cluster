@@ -1,0 +1,35 @@
+# Set the base image to Ubuntu
+
+FROM ubuntu:16.04
+
+# File Author / Maintainer
+
+MAINTAINER fanqihong
+
+# Change the repo
+RUN echo "" > /etc/apt/sources.list; echo "deb http://mirrors.aliyun.com/ubuntu/ xenial main restricted universe multiverse" >> /etc/apt/sources.list; echo "deb http://mirrors.aliyun.com/ubuntu/ xenial-security main restricted universe multiverse" >> /etc/apt/sources.list; echo "deb http://mirrors.aliyun.com/ubuntu/ xenial-updates main restricted universe multiverse" >> /etc/apt/sources.list; echo "deb http://mirrors.aliyun.com/ubuntu/ xenial-backports main restricted universe multiverse" >> /etc/apt/sources.list
+
+# Update the repository and install software
+
+RUN apt-get update &&  apt-get install -y openssh-server inetutils-ping supervisor net-tools curl vim && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Add init_ssh.sh,etcd,etcdctl,etcd_install command file
+
+COPY init_ssh.sh /init_ssh.sh
+COPY etcd* /usr/bin/
+COPY establish_etcd_cluster.sh /establish_etcd_cluster.sh
+
+
+# Add a configuration file for Supervisor
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Config
+RUN mkdir -p /var/run/sshd /var/log/supervisor && chmod +x /init_ssh.sh && chmod +x /usr/bin/etcd* && chmod +x /establish_etcd_cluster.sh
+
+# Set the default command to execute when creating a new container
+
+CMD ["/usr/bin/supervisord"]
+~                                                                                                                                            
+                                                                                                                                        
+                                                                                                                           21,1       
